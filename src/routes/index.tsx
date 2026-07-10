@@ -46,7 +46,7 @@ import {
   SiVercel,
   SiFirebase,
 } from "react-icons/si";
-import samridhPhoto from "@/assets/samridh.jpg.asset.json";
+import samridhPhoto from "@/assets/portfolio.jpg";
 
 type IconType = React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
 
