@@ -176,21 +176,21 @@ const PROJECTS = [
 
 const EXPERIENCE = [
   {
-    when: "2018 — 2020",
+    when: "2022",
     title: "Class 10 — SSC",
     where: "Creane Memorial High School",
     body: "Built the foundation. Discovered a love for problem solving and computers.",
     icon: GraduationCap,
   },
   {
-    when: "2020 — 2022",
+    when: "2024",
     title: "Class 12 — PCM",
     where: "City Public School",
     body: "Deep dive into math and physics; started exploring programming seriously.",
     icon: GraduationCap,
   },
   {
-    when: "2023 — Present",
+    when: "2024 — Present",
     title: "B.E. Information Science & Engineering",
     where: "Siddaganga Institute of Technology, Tumkur",
     body: "Pre-final year. Focused on AI/ML, distributed systems, and shipping real full-stack products.",
