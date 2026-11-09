@@ -124,21 +124,75 @@
 
 @utility grid-bg {
   background-image:
-    linear-gradient(to right, color-mix(in oklab, white 3%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, white 3%, transparent) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in oklab, white 1.5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, white 1.5%, transparent) 1px, transparent 1px);
   background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
 }
 
 @utility glass {
-  background: color-mix(in oklab, var(--surface) 50%, transparent);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  background: color-mix(in oklab, var(--surface) 65%, transparent);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
   border: 1px solid var(--hairline);
 }
 
 @utility hairline-b {
   border-bottom: 1px solid var(--hairline);
+}
+
+@keyframes constellation-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-1.5%, 2%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ribbon-drift {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translateY(-8px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.95;
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 0.12;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.22;
+    transform: scale(1.08);
+  }
+}
+
+@utility animate-constellation {
+  animation: constellation-drift 32s ease-in-out infinite;
+}
+
+@utility animate-ribbon {
+  animation: ribbon-drift 22s ease-in-out infinite;
+}
+
+@utility animate-glow {
+  animation: pulse-subtle 14s ease-in-out infinite;
+}
+
+:root[data-motion="paused"] * {
+  animation-play-state: paused !important;
 }
 
 @keyframes float-y {

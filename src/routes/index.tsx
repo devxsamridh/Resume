@@ -3,6 +3,7 @@ import {
   useEffect,
   useId,
   useMemo,
+  useRef,
   useState,
   type ComponentType,
   type CSSProperties,
@@ -27,6 +28,12 @@ import {
   Home,
   Menu,
   X,
+  Medal,
+  Copy,
+  Check,
+  Play,
+  Pause,
+  Rocket,
 } from "lucide-react";
 
 import {
@@ -59,7 +66,17 @@ import {
   SiX,
 } from "react-icons/si";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 import samridhPhotoUrl from "@/assets/portfolio.jpg";
+import memoryCompanionImg from "@/assets/projects/memory-companion.jpeg";
+import homicoImg from "@/assets/projects/homico.png";
 
 /* ---------------- types ---------------- */
 
@@ -188,6 +205,7 @@ const PROJECTS: {
   description: string;
   stack: string[];
   github: string | null;
+  demo: string | null;
   image?: string;
   accent: string;
 }[] = [
@@ -198,6 +216,8 @@ const PROJECTS: {
       "An AI-powered empathetic support system that converses naturally, remembers past interactions, understands emotional context, and responds with warmth.",
     stack: ["NLP", "Sentiment Analysis", "Contextual Memory", "Chatbots", "Python"],
     github: null as string | null,
+    demo: null,
+    image: memoryCompanionImg,
     accent: "from-[oklch(0.72_0.16_258)] to-[oklch(0.80_0.15_175)]",
   },
 
@@ -208,6 +228,8 @@ const PROJECTS: {
       "A full-featured platform for booking repair services, ordering materials, and managing end-to-end home-building workflows.",
     stack: ["JavaScript", "React.js", "Node.js", "Express.js", "MongoDB"],
     github: "https://github.com/devxsamridh/homico-updated",
+    demo: "https://homico-frontend.vercel.app/",
+    image: homicoImg,
     accent: "from-[oklch(0.72_0.16_258)] to-[oklch(0.65_0.20_305)]",
   },
 ];
@@ -274,9 +296,358 @@ function useTypewriter(words: string[], speed = 70, pause = 1600) {
   return text;
 }
 
-/* ---------------- navigation ---------------- */
+/* ---------------- contact popup ---------------- */
 
-function Nav() {
+const SOCIAL_LINKS = [
+  {
+    name: "LinkedIn",
+    href: "https://www.linkedin.com/in/samridh-shaurya-singh-139063336/",
+    icon: Linkedin,
+  },
+  {
+    name: "GitHub",
+    href: "https://github.com/devxsamridh",
+    icon: Github,
+  },
+  {
+    name: "X",
+    href: "https://x.com/samridh_4606",
+    icon: SiX,
+  },
+];
+
+function ContactModal({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const email = "samridh7781@gmail.com";
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      navigator.clipboard.writeText(email);
+      setCopied(true);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy email", err);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md rounded-3xl border border-[color:var(--hairline)] bg-[color:var(--surface)] p-6 shadow-2xl backdrop-blur-2xl sm:rounded-3xl">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Contact Samridh</DialogTitle>
+          <DialogDescription>
+            Reach out directly via email or connect on social media.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-5 pt-2">
+          {/* Top row: social links */}
+          <div className="flex items-center gap-2">
+            {SOCIAL_LINKS.map(({ name, href, icon: Icon }) => (
+              <a
+                key={name}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={name}
+                className="grid h-10 w-10 place-items-center rounded-full border border-[color:var(--hairline)] bg-[color:var(--surface-elevated)] text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--accent)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+              >
+                <Icon className="h-4 w-4" />
+              </a>
+            ))}
+          </div>
+
+          {/* Email card */}
+          <a
+            href={`mailto:${email}`}
+            className="group relative block overflow-hidden rounded-2xl border border-[color:var(--hairline)] bg-[color:var(--surface-elevated)] transition-all duration-300 hover:border-[color:var(--accent)]/50 hover:shadow-[0_0_30px_-10px_color-mix(in_oklab,var(--accent)_35%,transparent)]"
+          >
+            <div className="flex items-center justify-between border-b border-[color:var(--hairline)] bg-gradient-to-r from-[color:var(--accent)]/15 via-[color:var(--accent)]/5 to-transparent px-4 py-3">
+              <div className="flex items-center gap-2 text-foreground">
+                <Mail className="h-4 w-4 text-[color:var(--accent)]" />
+                <span className="font-display text-sm font-semibold">Email</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleCopy}
+                aria-label={copied ? "Copied" : "Copy email address"}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[color:var(--hairline)] bg-[color:var(--surface)]/80 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-[color:var(--accent)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-3 w-3 text-[color:var(--accent-mint)]" />
+                    <span className="text-[color:var(--accent-mint)]">Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3 w-3" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="p-4">
+              <p className="font-mono text-sm font-semibold text-foreground group-hover:text-[color:var(--accent)] transition-colors">
+                {email}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">Send me an email directly</p>
+            </div>
+          </a>
+
+          {/* Available pill */}
+          <div className="flex items-center justify-center gap-2.5 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-2.5 text-center">
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
+            </span>
+            <p className="text-xs font-medium text-emerald-400">
+              Currently available for new opportunities
+            </p>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ---------------- live notification toast ---------------- */
+
+function LiveToast() {
+  const [visible, setVisible] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const remainingTimeRef = useRef(9000);
+  const startTimeRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const STORAGE_KEY = "homico_live_toast_shown";
+
+  useEffect(() => {
+    let alreadyShown = false;
+    try {
+      alreadyShown = sessionStorage.getItem(STORAGE_KEY) === "1";
+    } catch {
+      alreadyShown = false;
+    }
+
+    if (alreadyShown) return;
+
+    const showTimer = setTimeout(() => {
+      setVisible(true);
+      try {
+        sessionStorage.setItem(STORAGE_KEY, "1");
+      } catch {
+        // storage disabled
+      }
+      startTimeRef.current = Date.now();
+    }, 1500);
+
+    return () => clearTimeout(showTimer);
+  }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    if (!paused) {
+      startTimeRef.current = Date.now();
+      timerRef.current = setTimeout(() => {
+        setVisible(false);
+      }, remainingTimeRef.current);
+    } else {
+      if (startTimeRef.current && timerRef.current) {
+        clearTimeout(timerRef.current);
+        const elapsed = Date.now() - startTimeRef.current;
+        remainingTimeRef.current = Math.max(500, remainingTimeRef.current - elapsed);
+      }
+    }
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [visible, paused]);
+
+  if (!visible) return null;
+
+  return (
+    <aside
+      role="status"
+      aria-live="polite"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-sm rounded-2xl border border-[color:var(--hairline)] bg-[color:var(--surface)]/95 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-xl transition-all duration-300 animate-rise sm:left-auto sm:right-6 sm:bottom-6"
+    >
+      <div className="flex items-start gap-3">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[color:var(--accent)]/30 bg-[color:var(--accent)]/15 text-[color:var(--accent)]">
+          <Rocket className="h-4 w-4" />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="font-display text-sm font-semibold tracking-tight text-foreground">
+              Homico is live
+            </h4>
+            <button
+              type="button"
+              onClick={() => setVisible(false)}
+              aria-label="Dismiss notification"
+              className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-[color:var(--surface-elevated)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            The project repository has been added and the app is now live.
+          </p>
+
+          <div className="mt-3 flex items-center gap-2">
+            <a
+              href="https://homico-frontend.vercel.app/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[color:var(--accent)] px-2.5 py-1 text-xs font-medium text-[color:var(--accent-foreground)] transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+            >
+              View live
+              <ExternalLink className="h-3 w-3" />
+            </a>
+            <a
+              href="https://github.com/devxsamridh/homico-updated"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[color:var(--hairline)] bg-[color:var(--surface-elevated)] px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+            >
+              <Github className="h-3 w-3" />
+              GitHub repo
+            </a>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ---------------- background visual effects ---------------- */
+
+const NOISE_DATA_URI =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44IiBudW1PY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI24pIiBvcGFjaXR5PSIwLjA1Ii8+PC9zdmc+";
+
+function BackgroundFX({ paused }: { paused: boolean }) {
+  return (
+    <div
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+      aria-hidden="true"
+      data-paused={paused}
+    >
+      {/* Layer 1: Base vertical gradient */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, oklch(0.10 0.012 265) 0%, oklch(0.06 0.008 265) 45%, oklch(0.04 0 0) 100%)",
+        }}
+      />
+
+      {/* Layer 2: Diagonal metallic woven ribbon effect */}
+      <div
+        className={`absolute -inset-[20%] ${paused ? "" : "animate-ribbon"}`}
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(32deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 80px, rgba(255,255,255,0.008) 80px, rgba(255,255,255,0.008) 160px, rgba(140,165,220,0.025) 160px, rgba(140,165,220,0.025) 240px)",
+          maskImage:
+            "radial-gradient(ellipse 90% 70% at 50% 20%, black 20%, rgba(0,0,0,0.4) 60%, transparent 85%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 90% 70% at 50% 20%, black 20%, rgba(0,0,0,0.4) 60%, transparent 85%)",
+        }}
+      />
+
+      {/* Layer 3: Soft colored accent glows */}
+      <div
+        className={`absolute -top-32 left-1/4 h-[550px] w-[550px] rounded-full blur-[140px] opacity-20 ${
+          paused ? "" : "animate-glow"
+        }`}
+        style={{ background: "var(--accent)" }}
+      />
+      <div
+        className={`absolute top-[40%] -right-24 h-[600px] w-[600px] rounded-full blur-[160px] opacity-15 ${
+          paused ? "" : "animate-glow"
+        }`}
+        style={{ background: "var(--accent-mint)", animationDelay: "-7s" }}
+      />
+      <div
+        className={`absolute top-[75%] left-[10%] h-[500px] w-[500px] rounded-full blur-[150px] opacity-15 ${
+          paused ? "" : "animate-glow"
+        }`}
+        style={{ background: "var(--accent)", animationDelay: "-3s" }}
+      />
+
+      {/* Layer 4: Faint network / constellation overlay */}
+      <svg
+        className={`absolute inset-0 h-full w-full opacity-35 ${
+          paused ? "" : "animate-constellation"
+        }`}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern id="constellation" width="180" height="180" patternUnits="userSpaceOnUse">
+            {/* Hexagonal / connecting lines */}
+            <path
+              d="M30 30 L90 10 L150 30 L170 90 L130 150 L50 150 L30 90 Z"
+              fill="none"
+              stroke="rgba(255,255,255,0.05)"
+              strokeWidth="0.8"
+            />
+            <path
+              d="M90 10 L90 70 M30 90 L90 70 M150 30 L90 70 M130 150 L90 70"
+              fill="none"
+              stroke="rgba(255,255,255,0.035)"
+              strokeWidth="0.6"
+            />
+            {/* Nodes */}
+            <circle cx="30" cy="30" r="1.5" fill="rgba(255,255,255,0.3)" />
+            <circle cx="90" cy="10" r="1.5" fill="rgba(120,180,255,0.4)" />
+            <circle cx="150" cy="30" r="1.5" fill="rgba(255,255,255,0.3)" />
+            <circle cx="170" cy="90" r="1.5" fill="rgba(120,255,210,0.35)" />
+            <circle cx="130" cy="150" r="1.5" fill="rgba(255,255,255,0.3)" />
+            <circle cx="50" cy="150" r="1.5" fill="rgba(120,180,255,0.35)" />
+            <circle cx="90" cy="70" r="2" fill="rgba(255,255,255,0.5)" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#constellation)" />
+      </svg>
+
+      {/* Layer 5: Fine film-grain noise + edge vignette */}
+      <div
+        className="absolute inset-0 opacity-40 mix-blend-screen"
+        style={{ backgroundImage: `url("${NOISE_DATA_URI}")` }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 85% 85% at 50% 50%, transparent 40%, rgba(0,0,0,0.75) 100%)",
+        }}
+      />
+    </div>
+  );
+}
+
+function Nav({ onOpenContact }: { onOpenContact: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -326,10 +697,10 @@ function Nav() {
   }, []);
 
   const linkClass = (id: string) =>
-    `rounded-full px-3 py-1.5 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
+    `rounded-full px-3.5 py-1.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
       activeSection === id
-        ? "bg-[color:var(--surface-elevated)] text-foreground"
-        : "text-muted-foreground hover:bg-[color:var(--surface-elevated)] hover:text-foreground"
+        ? "bg-[color:var(--surface-elevated)] text-foreground border border-[color:var(--accent)]/40 shadow-[0_0_15px_-4px_color-mix(in_oklab,var(--accent)_30%,transparent)]"
+        : "border border-transparent text-muted-foreground hover:bg-[color:var(--surface-elevated)] hover:text-foreground"
     }`;
 
   return (
@@ -337,8 +708,8 @@ function Nav() {
       <nav
         className={`flex h-14 w-full max-w-4xl items-center justify-between rounded-full border border-[color:var(--hairline)] px-5 transition-all duration-300 ${
           scrolled
-            ? "glass shadow-[0_10px_40px_-15px_rgba(0,0,0,0.8)]"
-            : "bg-[color:var(--surface)]/40 backdrop-blur-md"
+            ? "glass shadow-[0_10px_40px_-15px_rgba(0,0,0,0.85)]"
+            : "bg-[color:var(--surface)]/60 backdrop-blur-xl border-white/10"
         }`}
       >
         <a
@@ -357,12 +728,13 @@ function Nav() {
           ))}
         </div>
 
-        <a
-          href="#contact"
-          className="hidden rounded-full border border-[color:var(--hairline)] bg-[color:var(--surface-elevated)] px-4 py-1.5 text-sm font-medium transition-colors hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:inline-flex"
+        <button
+          type="button"
+          onClick={onOpenContact}
+          className="hidden cursor-pointer rounded-full border border-[color:var(--hairline)] bg-[color:var(--surface-elevated)] px-4 py-1.5 text-sm font-medium transition-colors hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] md:inline-flex"
         >
           Get in touch
-        </a>
+        </button>
 
         <button
           type="button"
@@ -390,6 +762,16 @@ function Nav() {
                 {item.label}
               </a>
             ))}
+            <button
+              type="button"
+              className="mt-1 block w-full text-left rounded-full px-3.5 py-1.5 text-sm font-medium text-[color:var(--accent)] hover:bg-[color:var(--surface-elevated)]"
+              onClick={() => {
+                setMenuOpen(false);
+                onOpenContact();
+              }}
+            >
+              Get in touch →
+            </button>
           </div>
         )}
       </nav>
@@ -467,7 +849,7 @@ function HeroVisual() {
   );
 }
 
-function Hero() {
+function Hero({ onOpenContact }: { onOpenContact: () => void }) {
   const typed = useTypewriter(ROLES);
 
   return (
@@ -484,8 +866,13 @@ function Hero() {
             Available for internships & collaborations
           </div>
 
+          <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
+            HI, I'M
+          </p>
+
           <h1 className="font-display text-6xl font-bold leading-[1.02] tracking-tight md:text-7xl">
-            Hi, I'm <span className="text-[color:var(--accent)]">Samridh</span>
+            <span className="text-[color:var(--accent)]">Samridh</span>{" "}
+            <span className="font-normal italic pr-[0.06em] text-foreground">Singh</span>
           </h1>
 
           <h2 className="mt-5 font-display text-2xl font-medium text-muted-foreground md:text-3xl">
@@ -506,13 +893,14 @@ function Hero() {
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
 
-            <a
-              href="#contact"
-              className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--hairline)] bg-[color:var(--surface)] px-4 py-2.5 text-sm font-medium transition-colors hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            <button
+              type="button"
+              onClick={onOpenContact}
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[color:var(--hairline)] bg-[color:var(--surface)] px-4 py-2.5 text-sm font-medium transition-colors hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
             >
               <Mail className="h-4 w-4" />
               Contact Me
-            </a>
+            </button>
 
             <a
               href="/Aug2026-Resume.pdf"
@@ -675,7 +1063,7 @@ function About() {
           </p>
         </div>
 
-        <div className="md:col-span-2">
+        <div className="space-y-4 md:col-span-2">
           <div className="glass rounded-3xl p-6">
             <h3 className="mb-4 font-display font-medium">What I'm focused on</h3>
 
@@ -693,6 +1081,27 @@ function About() {
                 </li>
               ))}
             </ul>
+          </div>
+
+          <div className="relative overflow-hidden rounded-3xl border border-[color:var(--accent-mint)]/30 bg-gradient-to-br from-[color:var(--surface)] via-[color:var(--surface-elevated)] to-[color:var(--surface)] p-5 shadow-[0_0_25px_-8px_color-mix(in_oklab,var(--accent-mint)_25%,transparent)] transition-all hover:border-[color:var(--accent-mint)]/50">
+            <div className="flex items-start gap-3.5">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[color:var(--accent-mint)]/40 bg-[color:var(--accent-mint)]/10 text-[color:var(--accent-mint)]">
+                <Medal className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--accent-mint)]">
+                    Achievement
+                  </span>
+                </div>
+                <h4 className="font-display text-base font-semibold text-foreground">
+                  SSB Recommended
+                </h4>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  Qualified the SSB interview through NDA entry from 21 SSB Bhopal.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -746,31 +1155,43 @@ function Projects() {
         {PROJECTS.map((project, index) => (
           <Reveal key={project.name} delay={index * 100}>
             <article
-              className="group relative overflow-hidden rounded-3xl border border-[color:var(--hairline)] bg-[color:var(--surface)] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[color:var(--accent)]/40"
+              className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[color:var(--hairline)] bg-[color:var(--surface)] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[color:var(--accent)]/40 hover:shadow-[var(--shadow-glow)]"
               style={{ transitionDelay: `${index * 80}ms` }}
             >
               <div
                 className={`pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-gradient-to-br ${project.accent} opacity-[0.12] blur-3xl transition-opacity duration-500 group-hover:opacity-25`}
               />
 
-              <div className="relative">
+              <div className="relative flex flex-1 flex-col">
                 <div
-                  className={`mb-6 aspect-video overflow-hidden rounded-2xl bg-gradient-to-br ${project.accent} p-px`}
+                  className={`mb-6 aspect-video overflow-hidden rounded-2xl border border-[color:var(--hairline)] bg-[color:var(--surface-elevated)] p-px transition-colors group-hover:border-[color:var(--accent)]/30`}
                 >
-                  <div className="flex h-full w-full items-center justify-center bg-[color:var(--surface)]/80 transition-transform duration-500 group-hover:scale-105">
+                  <div className="relative h-full w-full overflow-hidden rounded-[calc(1rem-1px)] bg-[color:var(--surface)]/90">
                     {project.image ? (
-                      <img
-                        src={project.image}
-                        alt={`${project.name} preview`}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : project.name === "Homico" ? (
-                      <Home className="h-16 w-16 text-foreground/20" aria-hidden="true" />
+                      <div className="relative h-full w-full overflow-hidden">
+                        <img
+                          src={project.image}
+                          alt={`${project.name} preview`}
+                          loading="lazy"
+                          className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                        />
+                        <div
+                          className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[color:var(--surface)] via-[color:var(--surface)]/50 to-transparent"
+                          aria-hidden="true"
+                        />
+                      </div>
                     ) : (
-                      <Brain className="h-16 w-16 text-foreground/20" aria-hidden="true" />
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[color:var(--surface)] to-[color:var(--surface-elevated)]">
+                        {project.name === "Homico" ? (
+                          <Home className="h-16 w-16 text-foreground/20" aria-hidden="true" />
+                        ) : (
+                          <Brain className="h-16 w-16 text-foreground/20" aria-hidden="true" />
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
+
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
                     <h3 className="font-display text-xl font-semibold tracking-tight">
@@ -780,7 +1201,17 @@ function Projects() {
                     <p className="mt-1 text-sm text-[color:var(--accent)]">{project.tagline}</p>
                   </div>
 
-                  {project.github && (
+                  {project.demo ? (
+                    <a
+                      href={project.demo}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`${project.name} live demo`}
+                      className="rounded-lg p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                    >
+                      <ArrowUpRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    </a>
+                  ) : project.github ? (
                     <a
                       href={project.github}
                       target="_blank"
@@ -790,7 +1221,7 @@ function Projects() {
                     >
                       <ArrowUpRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </a>
-                  )}
+                  ) : null}
                 </div>
 
                 <p className="text-sm leading-relaxed text-muted-foreground">
@@ -808,8 +1239,33 @@ function Projects() {
                   ))}
                 </div>
 
-                <div className="mt-6 flex items-center gap-3 text-sm">
-                  {project.github ? (
+                <div className="mt-auto pt-6 flex flex-wrap items-center gap-3 text-sm">
+                  {project.demo ? (
+                    <>
+                      <a
+                        href={project.demo}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`Open ${project.name} live demo`}
+                        className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--accent)] px-3.5 py-2 font-medium text-[color:var(--accent-foreground)] transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                      >
+                        Live Demo
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                      {project.github && (
+                        <a
+                          href={project.github}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`View ${project.name} on GitHub`}
+                          className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--hairline)] bg-[color:var(--surface-elevated)] px-3.5 py-2 font-medium text-foreground transition-colors hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                        >
+                          <Github className="h-4 w-4" />
+                          GitHub
+                        </a>
+                      )}
+                    </>
+                  ) : project.github ? (
                     <a
                       href={project.github}
                       target="_blank"
@@ -1171,8 +1627,32 @@ function Footer() {
 
 /* ---------------- main portfolio ---------------- */
 
+const MOTION_STORAGE_KEY = "motion-paused";
+
 function Portfolio() {
   const [progress, setProgress] = useState(0);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [motionPaused, setMotionPaused] = useState(() => {
+    try {
+      return localStorage.getItem(MOTION_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (motionPaused) {
+        document.documentElement.setAttribute("data-motion", "paused");
+        localStorage.setItem(MOTION_STORAGE_KEY, "1");
+      } else {
+        document.documentElement.removeAttribute("data-motion");
+        localStorage.setItem(MOTION_STORAGE_KEY, "0");
+      }
+    } catch {
+      // storage disabled
+    }
+  }, [motionPaused]);
 
   useEffect(() => {
     const updateProgress = () => {
@@ -1185,20 +1665,46 @@ function Portfolio() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <div className="relative min-h-screen bg-transparent text-foreground selection:bg-[color:var(--accent)]/30">
+      {/* Scroll indicator bar */}
       <div
         className="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-[color:var(--accent)]"
         style={{ transform: `scaleX(${progress})` }}
       />
-      <Nav />
-      <Hero />
-      <About />
-      <Skills />
-      <Projects />
-      <Education />
-      <Resume />
-      <Contact />
-      <Footer />
-    </main>
+
+      {/* Rich dark animated background */}
+      <BackgroundFX paused={motionPaused} />
+
+      {/* Main content layer */}
+      <main className="relative z-10">
+        <Nav onOpenContact={() => setContactOpen(true)} />
+        <Hero onOpenContact={() => setContactOpen(true)} />
+        <About />
+        <Skills />
+        <Projects />
+        <Education />
+        <Resume />
+        <Contact />
+        <Footer />
+      </main>
+
+      {/* Contact modal popup */}
+      <ContactModal open={contactOpen} onOpenChange={setContactOpen} />
+
+      {/* Live notification toast */}
+      <LiveToast />
+
+      {/* Motion pause/play toggle button (bottom-left) */}
+      <button
+        type="button"
+        onClick={() => setMotionPaused((prev) => !prev)}
+        aria-pressed={motionPaused}
+        aria-label={motionPaused ? "Play background motion" : "Pause background motion"}
+        title={motionPaused ? "Play background motion" : "Pause background motion"}
+        className="fixed bottom-6 left-4 z-30 grid h-10 w-10 place-items-center rounded-full border border-[color:var(--hairline)] bg-[color:var(--surface)]/90 text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:border-[color:var(--accent)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] sm:left-6"
+      >
+        {motionPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+      </button>
+    </div>
   );
 }
